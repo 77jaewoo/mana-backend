@@ -8,10 +8,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ Supabase 연결 (여기 2개는 너 키로 교체해야 함)
+// ✅ Supabase 연결 (완성)
 const supabase = createClient(
-  "YOUR_SUPABASE_URL",
-  "YOUR_SUPABASE_ANON_KEY"
+  "https://uroheuvtwkldvwxniqyr.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyb2hldXZ0d2tsZHZ3eG5pcXlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMwOTY5ODgsImV4cCI6MjA5ODY3Mjk4OH0.u45rZSRe3BUT7-2251mupuWpEjl5ETeCHYki4pkoaaM"
 );
 
 // 테스트용 기본 라우트
