@@ -18,26 +18,25 @@ const supabase = createClient(
 );
 
 // =====================
-// JWT SECRET (아무 문자열 OK)
+// JWT SECRET
 // =====================
 const JWT_SECRET = "mana_secret_key_123";
 
 // =====================
-// 기본 라우트
+// 기본 테스트 라우트
 // =====================
 app.get("/", (req, res) => {
   res.send("MANA server running");
 });
 
 // =====================
-// 회원가입 (비밀번호 암호화)
+// 회원가입 (암호화 저장)
 // =====================
 app.post("/signup", async (req, res) => {
   const { email, password } = req.body;
 
   console.log("signup 요청:", email);
 
-  // 🔐 비밀번호 암호화
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const { data, error } = await supabase
@@ -52,13 +51,14 @@ app.post("/signup", async (req, res) => {
   if (error) {
     return res.json({
       success: false,
+      message: "회원가입 실패",
       error
     });
   }
 
   res.json({
     success: true,
-    message: "회원가입 성공 (암호화 저장)",
+    message: "회원가입 성공",
     data
   });
 });
@@ -84,7 +84,6 @@ app.post("/login", async (req, res) => {
     });
   }
 
-  // 🔐 비밀번호 비교
   const isMatch = await bcrypt.compare(password, data.password);
 
   if (!isMatch) {
@@ -94,7 +93,6 @@ app.post("/login", async (req, res) => {
     });
   }
 
-  // 🔑 JWT 생성
   const token = jwt.sign(
     { id: data.id, email: data.email },
     JWT_SECRET,
@@ -105,6 +103,44 @@ app.post("/login", async (req, res) => {
     success: true,
     message: "로그인 성공",
     token
+  });
+});
+
+// =====================
+// JWT 인증 미들웨어
+// =====================
+const authMiddleware = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    return res.json({
+      success: false,
+      message: "토큰 없음"
+    });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.json({
+      success: false,
+      message: "토큰 인증 실패"
+    });
+  }
+};
+
+// =====================
+// 보호된 API (JWT 필요)
+// =====================
+app.get("/me", authMiddleware, (req, res) => {
+  res.json({
+    success: true,
+    message: "인증 성공",
+    user: req.user
   });
 });
 
