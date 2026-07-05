@@ -1,14 +1,18 @@
 const express = require("express");
+const cors = require("cors");
+
 const app = express();
 
+// 🔥 필수 설정
+app.use(cors());
 app.use(express.json());
 
+// 테스트용 기본 라우트
 app.get("/", (req, res) => {
   res.send("MANA server running");
 });
 
-
-// ✅ 여기 추가 (핵심)
+// ✅ 회원가입 API
 app.post("/signup", (req, res) => {
   const { email, password } = req.body;
 
@@ -21,6 +25,7 @@ app.post("/signup", (req, res) => {
   });
 });
 
+// 서버 실행
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
