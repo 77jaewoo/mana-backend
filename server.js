@@ -10,11 +10,11 @@ app.use(cors());
 app.use(express.json());
 
 // =====================
-// Supabase 연결
+// Supabase 연결 (완성)
 // =====================
 const supabase = createClient(
   "https://uroheuvtwkldvwxniqyr.supabase.co",
-  "YOUR_SUPABASE_ANON_KEY"
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyb2hldXZ0d2tsZHZ3eG5pcXlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMwOTY5ODgsImV4cCI6MjA5ODY3Mjk4OH0.u45rZSRe3BUT7-2251mupuWpEjl5ETeCHYki4pkoaaM"
 );
 
 // =====================
@@ -23,14 +23,14 @@ const supabase = createClient(
 const JWT_SECRET = "mana_secret_key_123";
 
 // =====================
-// 기본 테스트 라우트
+// 기본 라우트
 // =====================
 app.get("/", (req, res) => {
   res.send("MANA server running");
 });
 
 // =====================
-// 회원가입 (bcrypt 암호화)
+// 회원가입 (bcrypt + DB 저장)
 // =====================
 app.post("/signup", async (req, res) => {
   const { email, password } = req.body;
@@ -142,7 +142,7 @@ const authMiddleware = (req, res, next) => {
 };
 
 // =====================
-// 보호된 API (JWT 필요)
+// 보호된 API (/me)
 // =====================
 app.get("/me", authMiddleware, (req, res) => {
   res.json({
