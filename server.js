@@ -1,3 +1,10 @@
+좋아 👍 이 server.js는 지금 거의 완성 상태인데 딱 2개만 보강하면 “진짜 서비스급”이 된다.
+그래서 “최종 정리 + 안전 + 실전 버전”으로 깔끔하게 바꿔줄게.
+
+🚀 🔥 최종 완성 server.js (수정 버전)
+
+👉 아래 그대로 쓰면 됨
+
 const express = require("express");
 const cors = require("cors");
 const { createClient } = require("@supabase/supabase-js");
@@ -10,7 +17,7 @@ app.use(cors());
 app.use(express.json());
 
 // =====================
-// Supabase 연결 (완성)
+// Supabase 연결
 // =====================
 const supabase = createClient(
   "https://uroheuvtwkldvwxniqyr.supabase.co",
@@ -23,17 +30,24 @@ const supabase = createClient(
 const JWT_SECRET = "mana_secret_key_123";
 
 // =====================
-// 기본 라우트
+// 기본 테스트
 // =====================
 app.get("/", (req, res) => {
   res.send("MANA server running");
 });
 
 // =====================
-// 회원가입 (bcrypt + DB 저장)
+// 회원가입
 // =====================
 app.post("/signup", async (req, res) => {
   const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.json({
+      success: false,
+      message: "email / password 필요"
+    });
+  }
 
   console.log("signup 요청:", email);
 
@@ -50,10 +64,11 @@ app.post("/signup", async (req, res) => {
       ]);
 
     if (error) {
+      console.log("DB 에러:", error);
+
       return res.json({
         success: false,
-        message: "회원가입 실패",
-        error
+        message: "회원가입 실패"
       });
     }
 
@@ -62,20 +77,29 @@ app.post("/signup", async (req, res) => {
       message: "회원가입 성공",
       data
     });
+
   } catch (err) {
+    console.log("서버 에러:", err);
+
     res.json({
       success: false,
-      message: "서버 에러",
-      error: err.message
+      message: "서버 에러"
     });
   }
 });
 
 // =====================
-// 로그인 (JWT 발급)
+// 로그인
 // =====================
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.json({
+      success: false,
+      message: "email / password 필요"
+    });
+  }
 
   console.log("login 요청:", email);
 
@@ -123,7 +147,7 @@ const authMiddleware = (req, res, next) => {
   if (!authHeader) {
     return res.json({
       success: false,
-      message: "토큰 없음 (로그인 필요)"
+      message: "토큰 없음"
     });
   }
 
@@ -142,7 +166,7 @@ const authMiddleware = (req, res, next) => {
 };
 
 // =====================
-// 보호된 API (/me)
+// 보호된 API
 // =====================
 app.get("/me", authMiddleware, (req, res) => {
   res.json({
