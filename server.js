@@ -30,37 +30,45 @@ app.get("/", (req, res) => {
 });
 
 // =====================
-// 회원가입 (암호화 저장)
+// 회원가입 (bcrypt 암호화)
 // =====================
 app.post("/signup", async (req, res) => {
   const { email, password } = req.body;
 
   console.log("signup 요청:", email);
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-  const { data, error } = await supabase
-    .from("users")
-    .insert([
-      {
-        email,
-        password: hashedPassword
-      }
-    ]);
+    const { data, error } = await supabase
+      .from("users")
+      .insert([
+        {
+          email,
+          password: hashedPassword
+        }
+      ]);
 
-  if (error) {
-    return res.json({
+    if (error) {
+      return res.json({
+        success: false,
+        message: "회원가입 실패",
+        error
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "회원가입 성공",
+      data
+    });
+  } catch (err) {
+    res.json({
       success: false,
-      message: "회원가입 실패",
-      error
+      message: "서버 에러",
+      error: err.message
     });
   }
-
-  res.json({
-    success: true,
-    message: "회원가입 성공",
-    data
-  });
 });
 
 // =====================
@@ -115,7 +123,7 @@ const authMiddleware = (req, res, next) => {
   if (!authHeader) {
     return res.json({
       success: false,
-      message: "토큰 없음"
+      message: "토큰 없음 (로그인 필요)"
     });
   }
 
